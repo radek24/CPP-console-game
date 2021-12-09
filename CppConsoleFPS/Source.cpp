@@ -4,7 +4,10 @@
 #include <iostream>
 #include <Windows.h>
 #include <chrono>
-#include<string> 
+#include <string> 
+#include <time.h> 
+#include <fstream>
+#define getrandom(min,max) rand()%(max-min+1)+min
 
 using namespace std;
 
@@ -24,19 +27,11 @@ float fScore = 0;
 float fMaxScore = 0;
 float fSpeed = 20.0f;
 float fMultiplier = 1.0f;
+float fDifficulty = 10.0f;
+bool Bgameloop = true;
 
 void clearScreen(wchar_t* activeScreen);
 void printMessageToScreen(string message, int startX, int startY, wchar_t* activeScreen);
-
-class MyVector2D{
-public:
-    float X;
-    float Y;
-    MyVector2D(float aX, float aY) {
-        X = aX;
-        Y = aY;
-    }
-};
 
 
 class Box {
@@ -72,16 +67,26 @@ public:
         {
             for (int y = (int)PosY; y < (int)(PosY + fHeight); y++)
             {
-                if (y < 0 || y > yScreenHeight || x < 0 || x  > xScreenWidth) {
-                    printMessageToScreen("OBJEKT MIMO OBRAZOVKU", 10, 10, activeScreen);
-
-                }
-                else {
+                if (!(y < 0 || y > yScreenHeight || x < 0 || x  > xScreenWidth)) {
                     activeScreen[x + (xScreenWidth)*y] = nShade;
-
                 }
             }
         }
+    }
+    void SetPosition(float aPositionX, float aPositionY) {
+         PosX= aPositionX;
+         PosY= aPositionY;
+    }
+    bool isOutHorizontalBounds() {
+        if (PosX + fWidth < -1.0f) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    void ObstacleMove(float AfDeltaTime) {
+        PosX -= fDifficulty * AfDeltaTime;
     }
 };
 
@@ -109,8 +114,6 @@ public:
     }
     void Draw() {
         if (fPlayerY < 0 || fPlayerY > yScreenHeight || fPlayerX < 0 || fPlayerX > xScreenWidth) {
-            printMessageToScreen("OBJEKT MIMO OBRAZOVKU", 10, 10, activeScreen);
-
         }
         else {
             activeScreen[(int)fPlayerX + ((xScreenWidth) * (int)fPlayerY)] = nShade;
@@ -134,20 +137,20 @@ public:
     }
 
     void CheckBoxColision(Box colider) {
-        if (!(fPlayerX+0.1< colider.PosX || fPlayerX- 0.1 > colider.PosX + colider.fWidth || fPlayerY+0.1 < colider.PosY || fPlayerY - 0.1 > colider.PosY + colider.fHeight)) {
+        if (!(fPlayerX+0.2< colider.PosX || fPlayerX- 0.2 > colider.PosX + colider.fWidth || fPlayerY+0.2 < colider.PosY || fPlayerY - 0.2 > colider.PosY + colider.fHeight)) {
             if(colider.Killer == false){
             
-            if (fPlayerX > colider.PosX && fPlayerX < colider.PosX + (colider.fWidth/2) && fPlayerY > colider.PosY+0.1 && fPlayerY < colider.PosY + colider.fHeight - 0.1) {
-                fPlayerX = colider.PosX-0.1;
+            if (fPlayerX > colider.PosX && fPlayerX < colider.PosX + (colider.fWidth/2) && fPlayerY > colider.PosY+0.2 && fPlayerY < colider.PosY + colider.fHeight - 0.2) {
+                fPlayerX = colider.PosX-0.2;
             }
-            if (fPlayerX < colider.PosX + colider.fWidth && fPlayerX > colider.PosX + (colider.fWidth / 2.0)&& fPlayerY > colider.PosY + 0.1 && fPlayerY < colider.PosY + colider.fHeight - 0.1) {
-                fPlayerX = colider.PosX+ colider.fWidth + 0.1;
+            if (fPlayerX < colider.PosX + colider.fWidth && fPlayerX > colider.PosX + (colider.fWidth / 2.0)&& fPlayerY > colider.PosY + 0.2 && fPlayerY < colider.PosY + colider.fHeight - 0.2) {
+                fPlayerX = colider.PosX+ colider.fWidth + 0.2;
             }
-            if (fPlayerY > colider.PosY && fPlayerY < colider.PosY+(colider.fHeight/2.0) && fPlayerX > colider.PosX+0.1 && fPlayerX < colider.PosX + colider.fWidth - 0.1) {
-                fPlayerY = colider.PosY - 0.1;
+            if (fPlayerY > colider.PosY && fPlayerY < colider.PosY+(colider.fHeight/2.0) && fPlayerX > colider.PosX+0.2 && fPlayerX < colider.PosX + colider.fWidth - 0.2) {
+                fPlayerY = colider.PosY - 0.2;
             }
-            if (fPlayerY < colider.PosY + colider.fHeight && fPlayerY > colider.PosY + (colider.fHeight / 2.0) && fPlayerX > colider.PosX + 0.1 && fPlayerX < colider.PosX + colider.fWidth - 0.1) {
-                fPlayerY = colider.PosY+colider.fHeight + 0.1;
+            if (fPlayerY < colider.PosY + colider.fHeight && fPlayerY > colider.PosY + (colider.fHeight / 2.0) && fPlayerX > colider.PosX + 0.2 && fPlayerX < colider.PosX + colider.fWidth - 0.2) {
+                fPlayerY = colider.PosY+colider.fHeight + 0.2;
             }
             }
             else {
@@ -156,13 +159,63 @@ public:
             }
         }
     }
+    void CheckBoxColisionArr(Box colider[], int Asize) {
+        for (int i = 0; i < Asize; i++)
+        {
+            if (!(fPlayerX + 0.2 < colider[i].PosX || fPlayerX - 0.2 > colider[i].PosX + colider[i].fWidth || fPlayerY + 0.2 < colider[i].PosY || fPlayerY - 0.2 > colider[i].PosY + colider[i].fHeight)) {
+                if (colider[i].Killer == false) {
+
+                    if (fPlayerX > colider[i].PosX && fPlayerX < colider[i].PosX + (colider[i].fWidth / 2) && fPlayerY > colider[i].PosY + 0.2 && fPlayerY < colider[i].PosY + colider[i].fHeight - 0.2) {
+                        fPlayerX = colider[i].PosX - 0.2;
+                    }
+                    if (fPlayerX < colider[i].PosX + colider[i].fWidth && fPlayerX > colider[i].PosX + (colider[i].fWidth / 2.0) && fPlayerY > colider[i].PosY + 0.2 && fPlayerY < colider[i].PosY + colider[i].fHeight - 0.2) {
+                        fPlayerX = colider[i].PosX + colider[i].fWidth + 0.2;
+                    }
+                    if (fPlayerY > colider[i].PosY && fPlayerY < colider[i].PosY + (colider[i].fHeight / 2.0) && fPlayerX > colider[i].PosX + 0.2 && fPlayerX < colider[i].PosX + colider[i].fWidth - 0.2) {
+                        fPlayerY = colider[i].PosY - 0.2;
+                    }
+                    if (fPlayerY < colider[i].PosY + colider[i].fHeight && fPlayerY > colider[i].PosY + (colider[i].fHeight / 2.0) && fPlayerX > colider[i].PosX + 0.2 && fPlayerX < colider[i].PosX + colider[i].fWidth - 0.2) {
+                        fPlayerY = colider[i].PosY + colider[i].fHeight + 0.2;
+                    }
+                }
+                else {
+                    
+                    Bgameloop = false;
+                }
+            }
+        }     
+    }
 };
 
 
 
 int main()
 {
+    string StoredMaxScoreString;
+    std::ifstream DebugLog;
+    DebugLog.open ("debug.txt");
+    
+    if (!DebugLog) {
+        ofstream NothingSmile("debug.txt");
+        NothingSmile.close();
+        DebugLog.open("debug.txt");
+    }
+    
+    if (DebugLog.is_open()) {
+        std::getline(DebugLog, StoredMaxScoreString);
+        float StoredMaxScoreFloat=0.0;
+        if (StoredMaxScoreString.find(".") != std::string::npos) {
+            StoredMaxScoreFloat = std::stof(StoredMaxScoreString);
+            fMaxScore = StoredMaxScoreFloat;
+        }
+        else {
+            fMaxScore = 0.0;
+        }
 
+    }
+
+    DebugLog.close();
+    srand((unsigned)time(0));
     wchar_t* screen = new wchar_t[xScreenWidth * yScreenHeight];
     HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(hConsole);
@@ -171,30 +224,54 @@ int main()
     auto tp1 = chrono::system_clock::now();
     auto tp2 = chrono::system_clock::now();
     auto strtime = chrono::system_clock::now();
-    Player Player1(20.0f,30.0f,screen);
+    Player Player1(10.0f,20.0f,screen);
     Box wall1(xScreenWidth, 2.0, 0, 8.0, screen);
-    Box wall2(xScreenWidth, 2.0, 0, 50.0, screen);
-    float Top = 8.0 + 2.0;
-    float Bottom = 50.0;
+    Box wall2(xScreenWidth, 2.0, 0, 30.0, screen);
+    Box wall3(2.0, 22.0, -1.0, 8.0, screen);
     
-    Box Obstacle1(5.00, 20.0, 130.0, Top,screen,PIXEL_THREEQUARTERS);
-    Obstacle1.Killer = true;
+    float Top = 8.0 + 2.0;
+    float Bottom = 30.0;
+    float start = 130.0;
+    float step = 37.0f;
 
 
-    while (1) {
-        
+    Box ObstacleTop(5.00, 1.0, start, Top,screen,PIXEL_THREEQUARTERS);
+    Box ObstacleBottom(5.00, 10.0, start, Bottom - 10.0, screen, PIXEL_THREEQUARTERS);
+
+    Box ObstacleTop2(5.00, 5.0, start+(step), Top, screen, PIXEL_THREEQUARTERS);
+    Box ObstacleBottom2(5.00, 6.0, start + (step), Bottom - 6.0, screen, PIXEL_THREEQUARTERS);
+
+    Box ObstacleTop3(5.00, 8.0, start + (step*2), Top, screen, PIXEL_THREEQUARTERS);
+    Box ObstacleBottom3(5.00, 4.0, start + (step*2), Bottom - 4.0, screen, PIXEL_THREEQUARTERS);
+
+    Box ObstacleTop4(5.00, 12.0, start + (step*3), Top, screen, PIXEL_THREEQUARTERS);
+    Box ObstacleBottom4(5.00, 5.0, start + (step*3), Bottom - 5.0, screen, PIXEL_THREEQUARTERS);
+   
+    Box ObstacleTop5(5.00, 5.0, start + (step * 4), Top, screen, PIXEL_THREEQUARTERS);
+    Box ObstacleBottom5(5.00, 5.0, start + (step * 4), Bottom - 5.0, screen, PIXEL_THREEQUARTERS);
+
+    int ObstaclesSize = 10;
+    Box Obstacles[] = { ObstacleTop,ObstacleBottom,ObstacleTop2,ObstacleBottom2,ObstacleTop3,ObstacleBottom3,ObstacleTop4,ObstacleBottom4,ObstacleTop5,ObstacleBottom5 };
+    for (int i = 0; i < ObstaclesSize; i++)
+    {
+        Obstacles[i].Killer = true;
+    }
+    
+    while (1){
+
+    while (Bgameloop) {
         //DeltaTime
         auto tp2 = chrono::system_clock::now();
         chrono::duration<float> elapsedTime = tp2 - tp1;
         tp1 = tp2;
         float fDeltaTime = elapsedTime.count();
-        
+
         //Time from start
         auto CHtime = chrono::system_clock::now();
-        chrono::duration<float> TimeStart = CHtime- strtime;
+        chrono::duration<float> TimeStart = CHtime - strtime;
         float fTime = TimeStart.count();
         
-        
+
         //kontrola
        
         if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
@@ -207,22 +284,47 @@ int main()
             Player1.fPlayerY += fSpeed * fDeltaTime;
         clearScreen(screen);
 
-
         Player1.Draw();
+
+        if (fDifficulty < 45.0f) {
+            fDifficulty += 0.25f * fDeltaTime;
+        }
+        
+        for (int h = 0; h < ObstaclesSize; h++)
+        {
+            Obstacles[h].ObstacleMove(fDeltaTime); 
+            if (h % 2 == 0) {
+                if (Obstacles[h].isOutHorizontalBounds()) {
+                    Obstacles[h].PosX = xScreenWidth + 1.0f;
+                    Obstacles[h + 1].PosX = xScreenWidth + 1.0f;
+
+                    float holePos;
+                    float holeSize;
+                    holePos = getrandom(1, 16);
+                    Obstacles[h].fHeight = holePos;
+                    int maxhole = 8;
+                    if (holePos + maxhole > 20) {
+                        maxhole = 4;
+                    }
+                    holeSize = getrandom(3, maxhole);
+                    Obstacles[h+1].PosY = holePos + holeSize + 10.0;
+                    Obstacles[h + 1].fHeight = 20 - (holePos + holeSize);
+                }
+            }
+            Obstacles[h].Draw();
+        }
         wall1.Draw();
         wall2.Draw();
+        wall3.Draw();
         
+        Box Walls[] = { wall1,wall2,wall3};
         
-        
-        
-        
-        
-        Obstacle1.Draw();
-
+        Player1.CheckBoxColisionArr(Walls, 3);
+        Player1.CheckBoxColisionArr(Obstacles, ObstaclesSize);
         Player1.CheckBorderCollisions();
-        Player1.CheckBoxColision(Obstacle1);
-        Player1.CheckBoxColision(wall1);
-        Player1.CheckBoxColision(wall2);
+        
+        
+
         fMultiplier += 0.2f * fDeltaTime;
         fScore +=1.0f*fDeltaTime* fMultiplier;
         
@@ -230,21 +332,90 @@ int main()
         {
             fMaxScore = fScore;
         }
-
-
+        
         printMessageToScreen("PlayerX: "+ std::to_string(Player1.fPlayerX), 1, 1, screen);
         printMessageToScreen("PlayerY: " + std::to_string(Player1.fPlayerY), 1, 2, screen);
         printMessageToScreen("FPS: " + std::to_string(1.0f/fDeltaTime), 1, 3, screen);
         printMessageToScreen("Time: " + std::to_string(fTime), 1, 4, screen);
-        
-        printMessageToScreen("---------------------", 50, 3, screen);
-        printMessageToScreen("Your score: " + std::to_string((int)round(fScore)), 50, 4, screen);
-        printMessageToScreen("Your max score: " + std::to_string((int)round(fMaxScore)), 50, 5, screen);
-        printMessageToScreen("---------------------", 50, 6, screen);
+
+        printMessageToScreen("---------------------", 50, 1, screen);
+        printMessageToScreen("Your score: " + std::to_string((int)round(fScore)), 50, 2, screen);
+        printMessageToScreen("Difficulty: " + std::to_string(fDifficulty), 50, 3, screen);
+        printMessageToScreen("Your max score: " + std::to_string((int)round(fMaxScore)), 50, 4, screen);
+        printMessageToScreen("---------------------", 50, 5, screen);
 
         screen[xScreenWidth * yScreenHeight - 1] = '\0';
         WriteConsoleOutputCharacter(hConsole, screen, xScreenWidth * yScreenHeight, { 0,0 }, &dwBytesWritten);
         
+    }
+    //DeltaTime
+    auto tp2 = chrono::system_clock::now();
+    chrono::duration<float> elapsedTime = tp2 - tp1;
+    tp1 = tp2;
+    float fDeltaTime = elapsedTime.count();
+
+    //Time from start
+    auto CHtime = chrono::system_clock::now();
+    chrono::duration<float> TimeStart = CHtime - strtime;
+    float fTime = TimeStart.count();
+    printMessageToScreen("FPS: " + std::to_string(1.0f / fDeltaTime), 1, 3, screen);
+    printMessageToScreen("Time: " + std::to_string(fTime), 1, 4, screen);
+
+
+    printMessageToScreen("-------------------------------", 65, 14, screen);
+    printMessageToScreen("I                             I", 65, 15, screen);
+    printMessageToScreen("I          YOU LOST           I", 65, 16, screen);
+    printMessageToScreen("I                             I", 65, 17, screen);
+    printMessageToScreen("I   Press R to restart game   I", 65, 18, screen);
+    printMessageToScreen("I     Press E to exit game    I", 65, 19, screen);
+    printMessageToScreen("-------------------------------", 65, 20, screen);
+    
+    
+
+    if (GetAsyncKeyState((unsigned short)'R') & 0x8000) {
+        
+
+        std::ofstream DebugLogInput;
+        DebugLogInput.open("debug.txt", std::ofstream::out | std::ofstream::trunc);
+        DebugLogInput << std::to_string(fMaxScore);
+
+        Bgameloop = true;
+    }
+       
+    if (GetAsyncKeyState((unsigned short)'E') & 0x8000) {
+
+        std::ofstream DebugLogInput;
+        DebugLogInput.open("debug.txt", std::ofstream::out | std::ofstream::trunc);
+        DebugLogInput << std::to_string(fMaxScore);
+        
+        return 0;
+    }
+       
+    //restart all variables;
+    fScore = 0;
+    Player1.fPlayerX = 10.0;
+    Player1.fPlayerY = 20.0;
+    fMultiplier = 1.0f;
+    fDifficulty = 10.0f;
+    
+    Obstacles[0].PosX = start + (step * 0);
+    Obstacles[1].PosX = start + (step * 0);
+
+    Obstacles[2].PosX = start + (step * 1);
+    Obstacles[3].PosX = start + (step * 1);
+
+    Obstacles[4].PosX = start + (step * 2);
+    Obstacles[5].PosX = start + (step * 2);
+
+    Obstacles[6].PosX = start + (step * 3);
+    Obstacles[7].PosX = start + (step * 3);
+
+    Obstacles[8].PosX = start + (step * 4);
+    Obstacles[9].PosX = start + (step * 4);
+
+
+    screen[xScreenWidth * yScreenHeight - 1] = '\0';
+    WriteConsoleOutputCharacter(hConsole, screen, xScreenWidth* yScreenHeight, { 0,0 }, & dwBytesWritten);
     }
     return 0;
 }
