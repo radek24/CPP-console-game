@@ -213,9 +213,12 @@ int main()
         wall2.Draw();
         
         
+        
+        
+        
+        
         Obstacle1.Draw();
-        
-        
+
         Player1.CheckBorderCollisions();
         Player1.CheckBoxColision(Obstacle1);
         Player1.CheckBoxColision(wall1);
