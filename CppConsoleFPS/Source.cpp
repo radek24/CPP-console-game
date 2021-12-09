@@ -29,6 +29,8 @@ float fSpeed = 20.0f;
 float fMultiplier = 1.0f;
 float fDifficulty = 10.0f;
 bool Bgameloop = true;
+bool BMainMenu = true;
+bool BShowCase = false;
 
 void clearScreen(wchar_t* activeScreen);
 void printMessageToScreen(string message, int startX, int startY, wchar_t* activeScreen);
@@ -44,6 +46,9 @@ public:
     bool Killer = false;
     wchar_t* activeScreen;
 
+private:
+    float scroll = -300;
+public:
     Box(float AfWidth, float AfHeight, float APosX, float APoxY, wchar_t* AactiveScreen) {
         fWidth = AfWidth;
         fHeight = AfHeight;
@@ -68,6 +73,28 @@ public:
             for (int y = (int)PosY; y < (int)(PosY + fHeight); y++)
             {
                 if (!(y < 0 || y > yScreenHeight || x < 0 || x  > xScreenWidth)) {
+                    activeScreen[x + (xScreenWidth)*y] = nShade;
+                }
+            }
+        }
+    }
+    void DrawChecker(float AfDeltaTime) {
+        scroll -= fDifficulty * AfDeltaTime;
+        for (int x = (int)PosX; x < (int)(PosX + fWidth); x++)
+        {
+            for (int y = (int)PosY; y < (int)(PosY + fHeight); y++)
+            {
+                if (!(y < 0 || y > yScreenHeight || x < 0 || x  > xScreenWidth)) {
+                    if (((int)(x + scroll) % 2 == 0 && y % 2 != 0) || ((int)(x + scroll) % 2 != 0 && y % 2 == 0)) {
+                        nShade = PIXEL_THREEQUARTERS;
+                    }
+                   /* if ((int)(x + scroll) % 2 == 0) {
+                        nShade = PIXEL_THREEQUARTERS;
+                   }*/
+                    else {
+                        nShade = PIXEL_SOLID;
+                    }
+                    
                     activeScreen[x + (xScreenWidth)*y] = nShade;
                 }
             }
@@ -141,13 +168,13 @@ public:
             if(colider.Killer == false){
             
             if (fPlayerX > colider.PosX && fPlayerX < colider.PosX + (colider.fWidth/2) && fPlayerY > colider.PosY+0.2 && fPlayerY < colider.PosY + colider.fHeight - 0.2) {
-                fPlayerX = colider.PosX-0.2;
+                fPlayerX = colider.PosX-0.2f;
             }
             if (fPlayerX < colider.PosX + colider.fWidth && fPlayerX > colider.PosX + (colider.fWidth / 2.0)&& fPlayerY > colider.PosY + 0.2 && fPlayerY < colider.PosY + colider.fHeight - 0.2) {
                 fPlayerX = colider.PosX+ colider.fWidth + 0.2;
             }
             if (fPlayerY > colider.PosY && fPlayerY < colider.PosY+(colider.fHeight/2.0) && fPlayerX > colider.PosX+0.2 && fPlayerX < colider.PosX + colider.fWidth - 0.2) {
-                fPlayerY = colider.PosY - 0.2;
+                fPlayerY = colider.PosY - 0.2f;
             }
             if (fPlayerY < colider.PosY + colider.fHeight && fPlayerY > colider.PosY + (colider.fHeight / 2.0) && fPlayerX > colider.PosX + 0.2 && fPlayerX < colider.PosX + colider.fWidth - 0.2) {
                 fPlayerY = colider.PosY+colider.fHeight + 0.2;
@@ -165,11 +192,11 @@ public:
             if (!(fPlayerX + 0.2 < colider[i].PosX || fPlayerX - 0.2 > colider[i].PosX + colider[i].fWidth || fPlayerY + 0.2 < colider[i].PosY || fPlayerY - 0.2 > colider[i].PosY + colider[i].fHeight)) {
                 if (colider[i].Killer == false) {
 
-                    if (fPlayerX > colider[i].PosX && fPlayerX < colider[i].PosX + (colider[i].fWidth / 2) && fPlayerY > colider[i].PosY + 0.2 && fPlayerY < colider[i].PosY + colider[i].fHeight - 0.2) {
-                        fPlayerX = colider[i].PosX - 0.2;
+                    if (fPlayerX+0.3f > colider[i].PosX && fPlayerX < colider[i].PosX + (colider[i].fWidth / 2) && fPlayerY > colider[i].PosY + 0.2 && fPlayerY < colider[i].PosY + colider[i].fHeight - 0.2) {
+                        fPlayerX = colider[i].PosX - 0.5f;
                     }
                     if (fPlayerX < colider[i].PosX + colider[i].fWidth && fPlayerX > colider[i].PosX + (colider[i].fWidth / 2.0) && fPlayerY > colider[i].PosY + 0.2 && fPlayerY < colider[i].PosY + colider[i].fHeight - 0.2) {
-                        fPlayerX = colider[i].PosX + colider[i].fWidth + 0.2;
+                        fPlayerX = colider[i].PosX + colider[i].fWidth + 0.2f;
                     }
                     if (fPlayerY > colider[i].PosY && fPlayerY < colider[i].PosY + (colider[i].fHeight / 2.0) && fPlayerX > colider[i].PosX + 0.2 && fPlayerX < colider[i].PosX + colider[i].fWidth - 0.2) {
                         fPlayerY = colider[i].PosY - 0.2;
@@ -224,14 +251,24 @@ int main()
     auto tp1 = chrono::system_clock::now();
     auto tp2 = chrono::system_clock::now();
     auto strtime = chrono::system_clock::now();
+    
+    
+    Player ShowcasePlayer(10.0f, 20.0f, screen);
+    Box ShowcaseMovingBox(10.0f, 10.0f, 30.0f, 30.0f, screen);
+    Box ShowcaseCheckerBox(10.0f, 10.0f, 60.0f, 10.0f, screen);
+    Box ShowcaseRotatingBox(10.0f, 5.0f, 100.0f, 20.0f, screen);
+    Box ShowcaseBox2(10.0f, 5.0f, 150.0f, 20.0f, screen,'#');
+    Box ShowcaseSrollingBox(20.0f, 5.0f, 150.0f, 40.0f, screen);
+
     Player Player1(10.0f,20.0f,screen);
+    
     Box wall1(xScreenWidth, 2.0, 0, 8.0, screen);
     Box wall2(xScreenWidth, 2.0, 0, 30.0, screen);
     Box wall3(2.0, 22.0, -1.0, 8.0, screen);
     
-    float Top = 8.0 + 2.0;
-    float Bottom = 30.0;
-    float start = 130.0;
+    double Top = 8.0 + 2.0;
+    double Bottom = 30.0;
+    double start = 130.0;
     float step = 37.0f;
 
 
@@ -249,15 +286,128 @@ int main()
    
     Box ObstacleTop5(5.00, 5.0, start + (step * 4), Top, screen, PIXEL_THREEQUARTERS);
     Box ObstacleBottom5(5.00, 5.0, start + (step * 4), Bottom - 5.0, screen, PIXEL_THREEQUARTERS);
-
+    
     int ObstaclesSize = 10;
     Box Obstacles[] = { ObstacleTop,ObstacleBottom,ObstacleTop2,ObstacleBottom2,ObstacleTop3,ObstacleBottom3,ObstacleTop4,ObstacleBottom4,ObstacleTop5,ObstacleBottom5 };
     for (int i = 0; i < ObstaclesSize; i++)
     {
         Obstacles[i].Killer = true;
     }
-    
+    bool BconfirmMenu = false;
     while (1){
+        while (BMainMenu) {
+            clearScreen(screen);
+            printMessageToScreen(" C++ game ", 5, 2, screen);
+            printMessageToScreen("----------", 5, 3, screen);
+            
+            printMessageToScreen("Press P to play game", 7, 5, screen);
+            printMessageToScreen("Press U clear your best score", 7, 6, screen);
+            printMessageToScreen("Press L to enter showcase level", 7, 7, screen);
+            printMessageToScreen("Press E to exit game", 7, 8, screen);
+            
+            
+            if (!BconfirmMenu) {
+                if (GetAsyncKeyState((unsigned short)'P') & 0x8000)
+                    BMainMenu = false;
+                if (GetAsyncKeyState((unsigned short)'L') & 0x8000)
+                    BMainMenu = false;
+                if (GetAsyncKeyState((unsigned short)'E') & 0x8000)
+                    return 0;
+                BShowCase = true;
+            }
+            
+            
+            if (GetAsyncKeyState((unsigned short)'U') & 0x8000)
+            {
+                BconfirmMenu = true;
+            }
+
+            if (BconfirmMenu) {
+                printMessageToScreen("----------------------------------------", 20, 10, screen);
+                printMessageToScreen("I            ARE YOU SURE?             I", 20, 11, screen);
+                printMessageToScreen("I         to delete best score         I", 20, 12, screen);
+                printMessageToScreen("I                                      I", 20, 13, screen);
+                printMessageToScreen("I             [Y]-yes                  I", 20, 14, screen);
+                printMessageToScreen("I             [N]-no                   I", 20, 15, screen);
+                printMessageToScreen("I                                      I", 20, 16, screen);
+                printMessageToScreen("I                                      I", 20, 17, screen);
+                printMessageToScreen("I                                      I", 20, 18, screen);
+                printMessageToScreen("I                                      I", 20, 19, screen);
+                printMessageToScreen("----------------------------------------", 20, 20, screen);
+
+                if (GetAsyncKeyState((unsigned short)'Y') & 0x8000) {
+                    std::ofstream DebugLogInput;
+                    DebugLogInput.open("debug.txt", std::ofstream::out | std::ofstream::trunc);
+                    DebugLogInput << "";
+                    BconfirmMenu = false;
+                }
+                if (GetAsyncKeyState((unsigned short)'N') & 0x8000) {
+                    BconfirmMenu = false;
+                }
+            }
+
+            screen[xScreenWidth * yScreenHeight - 1] = '\0';
+            WriteConsoleOutputCharacter(hConsole, screen, xScreenWidth * yScreenHeight, { 0,0 }, &dwBytesWritten);
+        }
+        while (BShowCase) {
+            //DeltaTime
+            auto tp2 = chrono::system_clock::now();
+            chrono::duration<float> elapsedTime = tp2 - tp1;
+            tp1 = tp2;
+            float fDeltaTime = elapsedTime.count();
+
+            //Time from start
+            auto CHtime = chrono::system_clock::now();
+            chrono::duration<float> TimeStart = CHtime - strtime;
+            float fTime = TimeStart.count();
+
+            if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
+                ShowcasePlayer.fPlayerX -= fSpeed * fDeltaTime;
+            if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
+                ShowcasePlayer.fPlayerX += fSpeed * fDeltaTime;
+            if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
+                ShowcasePlayer.fPlayerY -= fSpeed * fDeltaTime;
+            if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
+                ShowcasePlayer.fPlayerY += fSpeed * fDeltaTime;
+            if (GetAsyncKeyState((unsigned short)'P') & 0x8000) {
+                BShowCase = false;
+            }
+            
+
+            clearScreen(screen);
+            
+            
+            
+            ShowcaseMovingBox.PosX = 30.0+sinf(fTime)*10.0f;
+            ShowcasePlayer.Draw();
+           ShowcaseRotatingBox.PosY = 20.0 + sinf(fTime*0.5f) * 10.0f;
+            ShowcaseRotatingBox.PosX = 100.0 + cosf(fTime * 0.5f) * 10.0f;
+
+            Box Walls[] = { ShowcaseMovingBox,ShowcaseCheckerBox,ShowcaseRotatingBox,ShowcaseBox2,ShowcaseSrollingBox };
+            int size = 5;
+            for (int p = 0; p < size; p++)
+            {
+                Walls[p].Draw();
+            }
+            ShowcaseCheckerBox.DrawChecker(0.0);
+            ShowcaseSrollingBox.DrawChecker(fDeltaTime);
+            ShowcasePlayer.CheckBoxColisionArr(Walls, size);
+            
+            printMessageToScreen(" PlayerX: " + std::to_string(ShowcasePlayer.fPlayerX), 1, 1, screen);
+            printMessageToScreen(" PlayerY: " + std::to_string(ShowcasePlayer.fPlayerY), 1, 2, screen);
+            printMessageToScreen(" FPS: " + std::to_string(1.0f / fDeltaTime), 1, 3, screen);
+            printMessageToScreen(" Time: " + std::to_string(fTime), 1, 4, screen);
+            printMessageToScreen(" [P] to enter game ", 1, 5, screen);
+
+
+            
+            
+
+
+
+            screen[xScreenWidth * yScreenHeight - 1] = '\0';
+            WriteConsoleOutputCharacter(hConsole, screen, xScreenWidth * yScreenHeight, { 0,0 }, &dwBytesWritten);
+    }
 
     while (Bgameloop) {
         //DeltaTime
@@ -314,7 +464,7 @@ int main()
             Obstacles[h].Draw();
         }
         wall1.Draw();
-        wall2.Draw();
+        wall2.DrawChecker(fDeltaTime);
         wall3.Draw();
         
         Box Walls[] = { wall1,wall2,wall3};
@@ -333,10 +483,9 @@ int main()
             fMaxScore = fScore;
         }
         
-        printMessageToScreen("PlayerX: "+ std::to_string(Player1.fPlayerX), 1, 1, screen);
-        printMessageToScreen("PlayerY: " + std::to_string(Player1.fPlayerY), 1, 2, screen);
-        printMessageToScreen("FPS: " + std::to_string(1.0f/fDeltaTime), 1, 3, screen);
-        printMessageToScreen("Time: " + std::to_string(fTime), 1, 4, screen);
+
+        printMessageToScreen("FPS: " + std::to_string(1.0f/fDeltaTime), 1, 1, screen);
+        printMessageToScreen("Time: " + std::to_string(fTime), 1, 2, screen);
 
         printMessageToScreen("---------------------", 50, 1, screen);
         printMessageToScreen("Your score: " + std::to_string((int)round(fScore)), 50, 2, screen);
@@ -358,17 +507,19 @@ int main()
     auto CHtime = chrono::system_clock::now();
     chrono::duration<float> TimeStart = CHtime - strtime;
     float fTime = TimeStart.count();
-    printMessageToScreen("FPS: " + std::to_string(1.0f / fDeltaTime), 1, 3, screen);
-    printMessageToScreen("Time: " + std::to_string(fTime), 1, 4, screen);
+    printMessageToScreen("FPS: " + std::to_string(1.0f / fDeltaTime), 1, 1, screen);
+    printMessageToScreen("Time: " + std::to_string(fTime), 1, 2, screen);
 
-
-    printMessageToScreen("-------------------------------", 65, 14, screen);
-    printMessageToScreen("I                             I", 65, 15, screen);
-    printMessageToScreen("I          YOU LOST           I", 65, 16, screen);
-    printMessageToScreen("I                             I", 65, 17, screen);
-    printMessageToScreen("I   Press R to restart game   I", 65, 18, screen);
-    printMessageToScreen("I     Press E to exit game    I", 65, 19, screen);
-    printMessageToScreen("-------------------------------", 65, 20, screen);
+    printMessageToScreen("                                 ", 65, 13, screen);
+    printMessageToScreen(" ------------------------------- ", 65, 14, screen);
+    printMessageToScreen(" I                             I ", 65, 15, screen);
+    printMessageToScreen(" I          YOU LOST           I ", 65, 16, screen);
+    printMessageToScreen(" I                             I ", 65, 17, screen);
+    printMessageToScreen(" I   Press R to restart game   I ", 65, 18, screen);
+    printMessageToScreen(" I     Press E to exit game    I ", 65, 19, screen);
+    printMessageToScreen(" I     Press M to main menu    I ", 65, 20, screen);
+    printMessageToScreen(" ------------------------------- ", 65, 21, screen);
+    printMessageToScreen("                                 ", 65, 22, screen);
     
     
 
@@ -380,6 +531,15 @@ int main()
         DebugLogInput << std::to_string(fMaxScore);
 
         Bgameloop = true;
+    }
+    if (GetAsyncKeyState((unsigned short)'M') & 0x8000) {
+
+
+        std::ofstream DebugLogInput;
+        DebugLogInput.open("debug.txt", std::ofstream::out | std::ofstream::trunc);
+        DebugLogInput << std::to_string(fMaxScore);
+        Bgameloop = true;
+        BMainMenu = true;
     }
        
     if (GetAsyncKeyState((unsigned short)'E') & 0x8000) {

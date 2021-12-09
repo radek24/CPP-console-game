@@ -1,0 +1,26 @@
+﻿  Source.cpp
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(169,40): warning C4244: =: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(172,57): warning C4244: =: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(175,41): warning C4244: =: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(178,57): warning C4244: =: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(194,52): warning C4244: =: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(197,72): warning C4244: =: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(200,52): warning C4244: =: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(203,73): warning C4244: =: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(253,15): warning C4244: argument: int se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(254,15): warning C4244: argument: int se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(264,50): warning C4244: argument: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(267,59): warning C4244: argument: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(270,61): warning C4244: argument: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(273,61): warning C4244: argument: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(276,63): warning C4244: argument: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(328,31): warning C4244: =: int se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(334,32): warning C4244: =: int se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(335,62): warning C4244: =: double se převádí na float; může dojít ke ztrátě dat.
+C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\CppConsoleFPS\Source.cpp(452,23): warning C4018: <: signed/unsigned – neshoda
+  Vytváří se kód.
+  0 of 247 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Vytváření kódu se dokončilo.
+  CppConsoleFPS.vcxproj -> C:\Users\home\OneDrive\Dokumenty\GitHub\CPPgame\CPP-console-game\Release\CppConsoleFPS.exe

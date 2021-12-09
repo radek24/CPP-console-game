@@ -21,16 +21,5 @@
     <ClCompile Include="Box.cpp">
       <Filter>Zdrojové soubory</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalVars.cpp">
-      <Filter>Zdrojové soubory</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Box.h">
-      <Filter>Hlavičkové soubory</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalVars.h">
-      <Filter>Hlavičkové soubory</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
