@@ -1,12 +1,10 @@
-﻿// CppConsoleFPS.cpp : Tento soubor obsahuje funkci main. Provádění programu se tam zahajuje a ukončuje.
-//
-
-#include <iostream>
+﻿#include <iostream>
 #include <Windows.h>
 #include <chrono>
 #include <string> 
 #include <time.h> 
 #include <fstream>
+//lol
 #define getrandom(min,max) rand()%(max-min+1)+min
 
 using namespace std;
@@ -20,7 +18,7 @@ enum PIXEL_TYPE
     PIXEL_QUARTER = 0x2591,
 };
 
-
+//Globální promene
 int xScreenWidth= 180;
 int yScreenHeight =60;
 float fScore = 0;
@@ -31,11 +29,13 @@ float fDifficulty = 10.0f;
 bool Bgameloop = true;
 bool BMainMenu = true;
 bool BShowCase = false;
+bool BconfirmMenu = false;
 
+//deklarace nebo definice funkci, nevim nejsem programator
 void clearScreen(wchar_t* activeScreen);
 void printMessageToScreen(string message, int startX, int startY, wchar_t* activeScreen);
 
-
+//class box a jeho metody
 class Box {
 public:
     float fWidth;
@@ -47,8 +47,10 @@ public:
     wchar_t* activeScreen;
 
 private:
+    //promena ktera se odcita kdyz neco scrolluje, asi brzo pretece idk
     float scroll = -300;
 public:
+    //konstruktory
     Box(float AfWidth, float AfHeight, float APosX, float APoxY, wchar_t* AactiveScreen) {
         fWidth = AfWidth;
         fHeight = AfHeight;
@@ -70,6 +72,7 @@ public:
     void Draw() {
         for (int x = (int)PosX; x < (int)(PosX + fWidth); x++)
         {
+            //posefene vykreslovani at to nezasahuje mimo vyalokovanou pamet
             for (int y = (int)PosY; y < (int)(PosY + fHeight); y++)
             {
                 if (!(y < 0 || y > yScreenHeight || x < 0 || x  > xScreenWidth)) {
@@ -78,6 +81,7 @@ public:
             }
         }
     }
+    
     void DrawChecker(float AfDeltaTime) {
         scroll -= fDifficulty * AfDeltaTime;
         for (int x = (int)PosX; x < (int)(PosX + fWidth); x++)
@@ -88,7 +92,9 @@ public:
                     if (((int)(x + scroll) % 2 == 0 && y % 2 != 0) || ((int)(x + scroll) % 2 != 0 && y % 2 == 0)) {
                         nShade = PIXEL_THREEQUARTERS;
                     }
-                   /* if ((int)(x + scroll) % 2 == 0) {
+                   
+                    //tohle vyhresluje cary, mozna nekdy pouziju tf
+                    /* if ((int)(x + scroll) % 2 == 0) {
                         nShade = PIXEL_THREEQUARTERS;
                    }*/
                     else {
@@ -100,10 +106,12 @@ public:
             }
         }
     }
+    //tuhle metodu myslim ani nepouzivam, ale jednou se bude hodit
     void SetPosition(float aPositionX, float aPositionY) {
          PosX= aPositionX;
          PosY= aPositionY;
     }
+    //specialni metoda pro hru
     bool isOutHorizontalBounds() {
         if (PosX + fWidth < -1.0f) {
             return true;
@@ -112,11 +120,12 @@ public:
             return false;
         }
     }
+    //posouva prekazku doleva, velice genericka metoda vim
     void ObstacleMove(float AfDeltaTime) {
         PosX -= fDifficulty * AfDeltaTime;
     }
 };
-
+//class hrac
 class Player {
 public:
     float fPlayerX;
@@ -146,6 +155,8 @@ public:
             activeScreen[(int)fPlayerX + ((xScreenWidth) * (int)fPlayerY)] = nShade;
         }
     }
+
+    
     void CheckBorderCollisions() {
         if (fPlayerX < 0.2f) {
             fPlayerX = 0.3f;
@@ -163,35 +174,17 @@ public:
 
     }
 
-    void CheckBoxColision(Box colider) {
-        if (!(fPlayerX+0.2< colider.PosX || fPlayerX- 0.2 > colider.PosX + colider.fWidth || fPlayerY+0.2 < colider.PosY || fPlayerY - 0.2 > colider.PosY + colider.fHeight)) {
-            if(colider.Killer == false){
-            
-            if (fPlayerX > colider.PosX && fPlayerX < colider.PosX + (colider.fWidth/2) && fPlayerY > colider.PosY+0.2 && fPlayerY < colider.PosY + colider.fHeight - 0.2) {
-                fPlayerX = colider.PosX-0.2f;
-            }
-            if (fPlayerX < colider.PosX + colider.fWidth && fPlayerX > colider.PosX + (colider.fWidth / 2.0)&& fPlayerY > colider.PosY + 0.2 && fPlayerY < colider.PosY + colider.fHeight - 0.2) {
-                fPlayerX = colider.PosX+ colider.fWidth + 0.2;
-            }
-            if (fPlayerY > colider.PosY && fPlayerY < colider.PosY+(colider.fHeight/2.0) && fPlayerX > colider.PosX+0.2 && fPlayerX < colider.PosX + colider.fWidth - 0.2) {
-                fPlayerY = colider.PosY - 0.2f;
-            }
-            if (fPlayerY < colider.PosY + colider.fHeight && fPlayerY > colider.PosY + (colider.fHeight / 2.0) && fPlayerX > colider.PosX + 0.2 && fPlayerX < colider.PosX + colider.fWidth - 0.2) {
-                fPlayerY = colider.PosY+colider.fHeight + 0.2;
-            }
-            }
-            else {
-                printMessageToScreen("MRTVY", 10, 10, activeScreen);
 
-            }
-        }
-    }
+    //Genericka metoda pro kontrolu kolizi, legit to zabralo tak 3 hodiny a ani to poradne neefunguje :(
     void CheckBoxColisionArr(Box colider[], int Asize) {
+        //fici pro kazdy objekt v array
         for (int i = 0; i < Asize; i++)
         {
+            //prvni se zkontroluje jestli je hrac nekde v kolizi, pro kill
             if (!(fPlayerX + 0.2 < colider[i].PosX || fPlayerX - 0.2 > colider[i].PosX + colider[i].fWidth || fPlayerY + 0.2 < colider[i].PosY || fPlayerY - 0.2 > colider[i].PosY + colider[i].fHeight)) {
+                
                 if (colider[i].Killer == false) {
-
+                    //potom se kontroluje z jake strany narazil a pak ho šupne zpatky
                     if (fPlayerX+0.3f > colider[i].PosX && fPlayerX < colider[i].PosX + (colider[i].fWidth / 2) && fPlayerY > colider[i].PosY + 0.2 && fPlayerY < colider[i].PosY + colider[i].fHeight - 0.2) {
                         fPlayerX = colider[i].PosX - 0.5f;
                     }
@@ -206,7 +199,7 @@ public:
                     }
                 }
                 else {
-                    
+                    //pokud se ma hrac zabit ukonci gameloop
                     Bgameloop = false;
                 }
             }
@@ -218,11 +211,14 @@ public:
 
 int main()
 {
+    //otevreni nebo vytvoreni souboru debug.log, kde se uklada skore
     string StoredMaxScoreString;
     std::ifstream DebugLog;
     DebugLog.open ("debug.txt");
     
+    //pokud soubor neexistuje tak ho proste vytvor lol
     if (!DebugLog) {
+        //kreativni nazvy promenych smile
         ofstream NothingSmile("debug.txt");
         NothingSmile.close();
         DebugLog.open("debug.txt");
@@ -230,6 +226,7 @@ int main()
     
     if (DebugLog.is_open()) {
         std::getline(DebugLog, StoredMaxScoreString);
+        //tohle by nemelo fungovat, ale funguje tak do toho nehrabu
         float StoredMaxScoreFloat=0.0;
         if (StoredMaxScoreString.find(".") != std::string::npos) {
             StoredMaxScoreFloat = std::stof(StoredMaxScoreString);
@@ -242,17 +239,21 @@ int main()
     }
 
     DebugLog.close();
+    //sranda time nula
     srand((unsigned)time(0));
+
+    //inicializace konzole a screenbufferu, ktery 1D array
     wchar_t* screen = new wchar_t[xScreenWidth * yScreenHeight];
     HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(hConsole);
     DWORD dwBytesWritten = 0;
 
+    //promene pro cas a deltatime
     auto tp1 = chrono::system_clock::now();
     auto tp2 = chrono::system_clock::now();
     auto strtime = chrono::system_clock::now();
     
-    
+    //definice objektu pro showcase level
     Player ShowcasePlayer(10.0f, 20.0f, screen);
     Box ShowcaseMovingBox(10.0f, 10.0f, 30.0f, 30.0f, screen);
     Box ShowcaseCheckerBox(10.0f, 10.0f, 60.0f, 10.0f, screen);
@@ -260,18 +261,20 @@ int main()
     Box ShowcaseBox2(10.0f, 5.0f, 150.0f, 20.0f, screen,'#');
     Box ShowcaseSrollingBox(20.0f, 5.0f, 150.0f, 40.0f, screen);
 
+    //definice objektu pro hru
     Player Player1(10.0f,20.0f,screen);
     
     Box wall1(xScreenWidth, 2.0, 0, 8.0, screen);
     Box wall2(xScreenWidth, 2.0, 0, 30.0, screen);
     Box wall3(2.0, 22.0, -1.0, 8.0, screen);
     
+    //promene pro ulehceni prace
     double Top = 8.0 + 2.0;
     double Bottom = 30.0;
     double start = 130.0;
     float step = 37.0f;
 
-
+    
     Box ObstacleTop(5.00, 1.0, start, Top,screen,PIXEL_THREEQUARTERS);
     Box ObstacleBottom(5.00, 10.0, start, Bottom - 10.0, screen, PIXEL_THREEQUARTERS);
 
@@ -287,14 +290,20 @@ int main()
     Box ObstacleTop5(5.00, 5.0, start + (step * 4), Top, screen, PIXEL_THREEQUARTERS);
     Box ObstacleBottom5(5.00, 5.0, start + (step * 4), Bottom - 5.0, screen, PIXEL_THREEQUARTERS);
     
+    //array vsech obstacles a jejich pocet, hodne ulehci praci
     int ObstaclesSize = 10;
     Box Obstacles[] = { ObstacleTop,ObstacleBottom,ObstacleTop2,ObstacleBottom2,ObstacleTop3,ObstacleBottom3,ObstacleTop4,ObstacleBottom4,ObstacleTop5,ObstacleBottom5 };
+    //ulehceni prace zde
     for (int i = 0; i < ObstaclesSize; i++)
     {
         Obstacles[i].Killer = true;
     }
-    bool BconfirmMenu = false;
+    //General game loop, cele to resim nekolika loopy za sebou ktere se postupne vypinaji nebo zapinaji podle toho co hrac macka, ROZHODNE to neni nejlepsi reseni a 
+    //velice spatne se scaluje, ale nic lepsiho me v tu chvili nenapadlo.
+
+    //Rendorvani se resi tak, ze se pise do 1D arraye (screen buffer), to co je pozdeji v kodu se zobrazi nad tim co je pred v kodu
     while (1){
+        //Main menu loop
         while (BMainMenu) {
             clearScreen(screen);
             printMessageToScreen(" C++ game ", 5, 2, screen);
@@ -305,7 +314,7 @@ int main()
             printMessageToScreen("Press L to enter showcase level", 7, 7, screen);
             printMessageToScreen("Press E to exit game", 7, 8, screen);
             
-            
+            //klavesy funguji jen kdyz neni zapnute confirm menu
             if (!BconfirmMenu) {
                 if (GetAsyncKeyState((unsigned short)'P') & 0x8000)
                     BMainMenu = false;
@@ -321,7 +330,8 @@ int main()
             {
                 BconfirmMenu = true;
             }
-
+            
+            //jsem profesionalni grafik, takze tomu odpovida ui tehle hry :sungllases:
             if (BconfirmMenu) {
                 printMessageToScreen("----------------------------------------", 20, 10, screen);
                 printMessageToScreen("I            ARE YOU SURE?             I", 20, 11, screen);
@@ -335,6 +345,7 @@ int main()
                 printMessageToScreen("I                                      I", 20, 19, screen);
                 printMessageToScreen("----------------------------------------", 20, 20, screen);
 
+                //kdyz chce tak to proste smaz
                 if (GetAsyncKeyState((unsigned short)'Y') & 0x8000) {
                     std::ofstream DebugLogInput;
                     DebugLogInput.open("debug.txt", std::ofstream::out | std::ofstream::trunc);
@@ -346,6 +357,7 @@ int main()
                 }
             }
 
+            //vypsani celeho screen bufferu do konzole, opakuje se na konci kazdeho gameloopu
             screen[xScreenWidth * yScreenHeight - 1] = '\0';
             WriteConsoleOutputCharacter(hConsole, screen, xScreenWidth * yScreenHeight, { 0,0 }, &dwBytesWritten);
         }
@@ -361,6 +373,8 @@ int main()
             chrono::duration<float> TimeStart = CHtime - strtime;
             float fTime = TimeStart.count();
 
+
+            //ovladani
             if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
                 ShowcasePlayer.fPlayerX -= fSpeed * fDeltaTime;
             if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
@@ -377,38 +391,40 @@ int main()
             clearScreen(screen);
             
             
-            
+            //hybajici se ctverecky
             ShowcaseMovingBox.PosX = 30.0+sinf(fTime)*10.0f;
             ShowcasePlayer.Draw();
            ShowcaseRotatingBox.PosY = 20.0 + sinf(fTime*0.5f) * 10.0f;
             ShowcaseRotatingBox.PosX = 100.0 + cosf(fTime * 0.5f) * 10.0f;
 
+            //vsechny objekty se ukladaji do arraye a pak se vykresi
             Box Walls[] = { ShowcaseMovingBox,ShowcaseCheckerBox,ShowcaseRotatingBox,ShowcaseBox2,ShowcaseSrollingBox };
             int size = 5;
             for (int p = 0; p < size; p++)
             {
                 Walls[p].Draw();
             }
+            //Basically overide drawcallu nahore
             ShowcaseCheckerBox.DrawChecker(0.0);
             ShowcaseSrollingBox.DrawChecker(fDeltaTime);
-            ShowcasePlayer.CheckBoxColisionArr(Walls, size);
             
+            //checknuti kolizi
+            ShowcasePlayer.CheckBoxColisionArr(Walls, size);
+            ShowcasePlayer.CheckBorderCollisions();
+            
+            //nejake debug zpravy
             printMessageToScreen(" PlayerX: " + std::to_string(ShowcasePlayer.fPlayerX), 1, 1, screen);
             printMessageToScreen(" PlayerY: " + std::to_string(ShowcasePlayer.fPlayerY), 1, 2, screen);
             printMessageToScreen(" FPS: " + std::to_string(1.0f / fDeltaTime), 1, 3, screen);
             printMessageToScreen(" Time: " + std::to_string(fTime), 1, 4, screen);
             printMessageToScreen(" [P] to enter game ", 1, 5, screen);
-
-
-            
-            
-
-
-
+     
             screen[xScreenWidth * yScreenHeight - 1] = '\0';
             WriteConsoleOutputCharacter(hConsole, screen, xScreenWidth * yScreenHeight, { 0,0 }, &dwBytesWritten);
     }
 
+
+        //hlavni hra loop
     while (Bgameloop) {
         //DeltaTime
         auto tp2 = chrono::system_clock::now();
@@ -422,7 +438,7 @@ int main()
         float fTime = TimeStart.count();
         
 
-        //kontrola
+        //ovladani
        
         if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
             Player1.fPlayerX -= fSpeed * fDeltaTime;
@@ -435,11 +451,14 @@ int main()
         clearScreen(screen);
 
         Player1.Draw();
-
+        
+        //postupne zvyseni obtiznosti, vpodstate to je jen ryhlost prekazek
         if (fDifficulty < 45.0f) {
             fDifficulty += 0.25f * fDeltaTime;
         }
         
+        //pro kazdou prekazku zkontroluj, jestli uz je mimo mapu a jestli ano hod ji na zacatek a taky ji vygeneruj velikost a sirku diry a nakonec vse vykresli
+
         for (int h = 0; h < ObstaclesSize; h++)
         {
             Obstacles[h].ObstacleMove(fDeltaTime); 
@@ -463,18 +482,21 @@ int main()
             }
             Obstacles[h].Draw();
         }
+
+        //drawcally zdi
         wall1.Draw();
         wall2.DrawChecker(fDeltaTime);
         wall3.Draw();
         
         Box Walls[] = { wall1,wall2,wall3};
         
+        //kolize a jine srandy
         Player1.CheckBoxColisionArr(Walls, 3);
         Player1.CheckBoxColisionArr(Obstacles, ObstaclesSize);
         Player1.CheckBorderCollisions();
         
         
-
+        //score a max score
         fMultiplier += 0.2f * fDeltaTime;
         fScore +=1.0f*fDeltaTime* fMultiplier;
         
@@ -510,6 +532,9 @@ int main()
     printMessageToScreen("FPS: " + std::to_string(1.0f / fDeltaTime), 1, 1, screen);
     printMessageToScreen("Time: " + std::to_string(fTime), 1, 2, screen);
 
+
+    //lol prohral slabko
+
     printMessageToScreen("                                 ", 65, 13, screen);
     printMessageToScreen(" ------------------------------- ", 65, 14, screen);
     printMessageToScreen(" I                             I ", 65, 15, screen);
@@ -522,7 +547,7 @@ int main()
     printMessageToScreen("                                 ", 65, 22, screen);
     
     
-
+    //restartuj hru a uloz maxscore do souboru
     if (GetAsyncKeyState((unsigned short)'R') & 0x8000) {
         
 
@@ -532,6 +557,7 @@ int main()
 
         Bgameloop = true;
     }
+    //ficime do menu a ukladame score
     if (GetAsyncKeyState((unsigned short)'M') & 0x8000) {
 
 
@@ -541,7 +567,8 @@ int main()
         Bgameloop = true;
         BMainMenu = true;
     }
-       
+    
+    //hrac hru vzdava a uklada sve spatne score
     if (GetAsyncKeyState((unsigned short)'E') & 0x8000) {
 
         std::ofstream DebugLogInput;
@@ -551,13 +578,15 @@ int main()
         return 0;
     }
        
-    //restart all variables;
+    //restart vsech promenych
     fScore = 0;
     Player1.fPlayerX = 10.0;
     Player1.fPlayerY = 20.0;
     fMultiplier = 1.0f;
     fDifficulty = 10.0f;
     
+
+    //TOHLE JSEM FAKT ZKOUSEL UDELAT V LOOPU, ALE NEFUNGOVALO TO :(
     Obstacles[0].PosX = start + (step * 0);
     Obstacles[1].PosX = start + (step * 0);
 
@@ -582,13 +611,15 @@ int main()
 
 
 
-
+//funkce ktera vypise jakykoliv string na obrazovku, 
 void printMessageToScreen(string message, int startX, int startY, wchar_t* activeScreen) {
     for (int i = 0; i < message.length(); i++)
     {
         activeScreen[(startX+i) + (xScreenWidth)*startY] = message[i];
     }
 }
+
+//vycisti celou obrazovku
 void clearScreen(wchar_t* activeScreen) {
     for (int x = 0; x < xScreenWidth; x++)
     {
@@ -598,3 +629,5 @@ void clearScreen(wchar_t* activeScreen) {
         }
     }
 }
+
+//konec zvonec
