@@ -305,6 +305,7 @@ int main()
     while (1){
         //Main menu loop
         while (BMainMenu) {
+           
             clearScreen(screen);
             printMessageToScreen(" C++ game ", 5, 2, screen);
             printMessageToScreen("----------", 5, 3, screen);
@@ -362,6 +363,8 @@ int main()
             WriteConsoleOutputCharacter(hConsole, screen, xScreenWidth * yScreenHeight, { 0,0 }, &dwBytesWritten);
         }
         while (BShowCase) {
+
+            
             //DeltaTime
             auto tp2 = chrono::system_clock::now();
             chrono::duration<float> elapsedTime = tp2 - tp1;
@@ -416,6 +419,7 @@ int main()
             printMessageToScreen(" PlayerX: " + std::to_string(ShowcasePlayer.fPlayerX), 1, 1, screen);
             printMessageToScreen(" PlayerY: " + std::to_string(ShowcasePlayer.fPlayerY), 1, 2, screen);
             printMessageToScreen(" FPS: " + std::to_string(1.0f / fDeltaTime), 1, 3, screen);
+            
             printMessageToScreen(" Time: " + std::to_string(fTime), 1, 4, screen);
             printMessageToScreen(" [P] to enter game ", 1, 5, screen);
      
@@ -453,7 +457,7 @@ int main()
         Player1.Draw();
         
         //postupne zvyseni obtiznosti, vpodstate to je jen ryhlost prekazek
-        if (fDifficulty < 45.0f) {
+        if (fDifficulty < 42.5f) {
             fDifficulty += 0.25f * fDeltaTime;
         }
         
@@ -508,6 +512,7 @@ int main()
 
         printMessageToScreen("FPS: " + std::to_string(1.0f/fDeltaTime), 1, 1, screen);
         printMessageToScreen("Time: " + std::to_string(fTime), 1, 2, screen);
+
 
         printMessageToScreen("---------------------", 50, 1, screen);
         printMessageToScreen("Your score: " + std::to_string((int)round(fScore)), 50, 2, screen);
