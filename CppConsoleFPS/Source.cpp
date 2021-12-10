@@ -24,7 +24,6 @@ int yScreenHeight =60;
 float fScore = 0;
 float fMaxScore = 0;
 float fSpeed = 20.0f;
-float fMultiplier = 1.0f;
 float fDifficulty = 10.0f;
 bool Bgameloop = true;
 bool BMainMenu = true;
@@ -45,6 +44,7 @@ public:
     short nShade = PIXEL_SOLID;
     bool Killer = false;
     wchar_t* activeScreen;
+    bool DrawThis = true;
 
 private:
     //promena ktera se odcita kdyz neco scrolluje, asi brzo pretece idk
@@ -262,6 +262,7 @@ int main()
     srand((unsigned)time(0));
 
     //inicializace konzole a screenbufferu, ktery 1D array
+
     wchar_t* screen = new wchar_t[xScreenWidth * yScreenHeight];
     HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
     SetConsoleActiveScreenBuffer(hConsole);
@@ -293,6 +294,12 @@ int main()
     double start = 130.0;
     float step = 37.0f;
 
+
+    Box Pickup1(1.0,1.0,130.0+2.0, 10+7, screen);
+    Pickup1.Shade('#');
+    Box Pickup2(1.0, 1.0, start + (step * 2.0)+2.0, 10+9, screen);
+    Pickup2.Shade('#');
+    Box Pickups[2] = {Pickup1, Pickup2};
     
     Box ObstacleTop(5.00, 1.0, start, Top,screen,PIXEL_THREEQUARTERS);
     Box ObstacleBottom(5.00, 10.0, start, Bottom - 10.0, screen, PIXEL_THREEQUARTERS);
@@ -511,12 +518,41 @@ int main()
                         Obstacles[h + 1].PosY = holePos + holeSize + 10.0;
                         Obstacles[h + 1].fHeight = 20 - (holePos + holeSize);
                     }
-                   
+                    int randomizer = getrandom(0, 5);
+                    if(randomizer>3){
+                    for (int i5 = 0; i5 < 2; i5++)
+                    {
+                        if (Pickups[i5].DrawThis == false) {
+                            Pickups[i5].DrawThis = true;
+                            Pickups[i5].PosX = Obstacles[h].PosX;
+                            Pickups[i5].PosY = holePos+10 + ((int)(holeSize / 2.0));
+                            break;
+                        }
+                    }
+                    }
                 }
             }
             Obstacles[h].Draw();
         }
-
+        
+        for (int l = 0; l < 2; l++)
+        {
+            
+            if (Player1.Overlap(Pickups[l])&& Pickups[l].DrawThis==true)
+            {
+                Pickups[l].DrawThis = false;
+                fScore += 100.0;
+            }
+            if (Pickups[l].isOutHorizontalBounds() == true)
+            {
+                Pickups[l].DrawThis = false;
+            }
+            if (Pickups[l].DrawThis == true) {
+                Pickups[l].Draw();
+                Pickups[l].ObstacleMove(fDeltaTime);
+           }    
+        }
+        
         //drawcally zdi
         wall1.Draw();
         wall2.DrawChecker(fDeltaTime);
@@ -531,8 +567,7 @@ int main()
         
         
         //score a max score
-        fMultiplier += 0.2f * fDeltaTime;
-        fScore +=1.0f*fDeltaTime* fMultiplier;
+        fScore +=5.0f*fDeltaTime;
         
         if (fScore > fMaxScore)
         {
@@ -542,7 +577,7 @@ int main()
 
         printMessageToScreen("FPS: " + std::to_string(1.0f/fDeltaTime), 1, 1, screen);
         printMessageToScreen("Time: " + std::to_string(fTime), 1, 2, screen);
-
+        printMessageToScreen("collect # for more points!", 1, 3, screen);
 
         printMessageToScreen("---------------------", 50, 1, screen);
         printMessageToScreen("Your score: " + std::to_string((int)round(fScore)), 50, 2, screen);
@@ -617,7 +652,6 @@ int main()
     fScore = 0;
     Player1.fPlayerX = 10.0;
     Player1.fPlayerY = 20.0;
-    fMultiplier = 1.0f;
     fDifficulty = 10.0f;
     
 
