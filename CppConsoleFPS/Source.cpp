@@ -502,8 +502,16 @@ int main()
                         maxhole = 4;
                     }
                     holeSize = getrandom(3, maxhole);
-                    Obstacles[h+1].PosY = holePos + holeSize + 10.0;
-                    Obstacles[h + 1].fHeight = 20 - (holePos + holeSize);
+                    if (holePos + holeSize >= 20) {
+                        Obstacles[h + 1].PosY = holePos + holeSize + 10.0+1.0;
+                        Obstacles[h + 1].fHeight = 20 - (holePos + holeSize);
+                    }
+                    else
+                    {
+                        Obstacles[h + 1].PosY = holePos + holeSize + 10.0;
+                        Obstacles[h + 1].fHeight = 20 - (holePos + holeSize);
+                    }
+                   
                 }
             }
             Obstacles[h].Draw();
