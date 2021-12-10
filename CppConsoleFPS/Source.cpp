@@ -29,6 +29,7 @@ bool Bgameloop = true;
 bool BMainMenu = true;
 bool BShowCase = false;
 bool BconfirmMenu = false;
+int sound = 0;
 
 //deklarace nebo definice funkci, nevim nejsem programator
 void clearScreen(wchar_t* activeScreen);
@@ -220,6 +221,7 @@ public:
                 else {
                     //pokud se ma hrac zabit ukonci gameloop
                     Bgameloop = false;
+                    Beep(200, 200);
                 }
             }
         }     
@@ -519,7 +521,7 @@ int main()
                         Obstacles[h + 1].fHeight = 20 - (holePos + holeSize);
                     }
                     int randomizer = getrandom(0, 5);
-                    if(randomizer>3){
+                    if(randomizer>2){
                     for (int i5 = 0; i5 < 2; i5++)
                     {
                         if (Pickups[i5].DrawThis == false) {
@@ -542,6 +544,7 @@ int main()
             {
                 Pickups[l].DrawThis = false;
                 fScore += 100.0;
+                sound = 2;
             }
             if (Pickups[l].isOutHorizontalBounds() == true)
             {
@@ -551,6 +554,16 @@ int main()
                 Pickups[l].Draw();
                 Pickups[l].ObstacleMove(fDeltaTime);
            }    
+        }
+        
+        if (sound > 0) {
+            if (sound == 2) {
+                Beep(1000, 10);
+            }
+            else {
+                Beep(100, 10);
+            }
+            sound--;
         }
         
         //drawcally zdi
@@ -577,7 +590,7 @@ int main()
 
         printMessageToScreen("FPS: " + std::to_string(1.0f/fDeltaTime), 1, 1, screen);
         printMessageToScreen("Time: " + std::to_string(fTime), 1, 2, screen);
-        printMessageToScreen("collect # for more points!", 1, 3, screen);
+        printMessageToScreen("collect # for more points! ", 1, 3, screen);
 
         printMessageToScreen("---------------------", 50, 1, screen);
         printMessageToScreen("Your score: " + std::to_string((int)round(fScore)), 50, 2, screen);
@@ -604,6 +617,7 @@ int main()
 
 
     //lol prohral slabko
+    
 
     printMessageToScreen("                                 ", 65, 13, screen);
     printMessageToScreen(" ------------------------------- ", 65, 14, screen);
