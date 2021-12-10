@@ -173,7 +173,26 @@ public:
 
 
     }
+    bool Overlap(Box colider) {  
+            if (!(fPlayerX + 0.2 < colider.PosX || fPlayerX - 0.2 > colider.PosX + colider.fWidth || fPlayerY + 0.2 < colider.PosY || fPlayerY - 0.2 > colider.PosY + colider.fHeight)) {
+                return true;
+            }
+            else {
+                return false;
+            }  
+    }
 
+    bool OverlapArr(Box colider[], int Asize) {
+        for (int i = 0; i < Asize; i++)
+        {
+            if (!(fPlayerX + 0.2 < colider[i].PosX || fPlayerX - 0.2 > colider[i].PosX + colider[i].fWidth || fPlayerY + 0.2 < colider[i].PosY || fPlayerY - 0.2 > colider[i].PosY + colider[i].fHeight)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
 
     //Genericka metoda pro kontrolu kolizi, legit to zabralo tak 3 hodiny a ani to poradne neefunguje :(
     void CheckBoxColisionArr(Box colider[], int Asize) {
@@ -396,12 +415,13 @@ int main()
             
             //hybajici se ctverecky
             ShowcaseMovingBox.PosX = 30.0+sinf(fTime)*10.0f;
-            ShowcasePlayer.Draw();
+            
            ShowcaseRotatingBox.PosY = 20.0 + sinf(fTime*0.5f) * 10.0f;
             ShowcaseRotatingBox.PosX = 100.0 + cosf(fTime * 0.5f) * 10.0f;
 
             //vsechny objekty se ukladaji do arraye a pak se vykresi
-            Box Walls[] = { ShowcaseMovingBox,ShowcaseCheckerBox,ShowcaseRotatingBox,ShowcaseBox2,ShowcaseSrollingBox };
+
+            Box Walls[] = { ShowcaseMovingBox,ShowcaseCheckerBox,ShowcaseRotatingBox,ShowcaseSrollingBox,ShowcaseBox2 };
             int size = 5;
             for (int p = 0; p < size; p++)
             {
@@ -412,8 +432,10 @@ int main()
             ShowcaseSrollingBox.DrawChecker(fDeltaTime);
             
             //checknuti kolizi
-            ShowcasePlayer.CheckBoxColisionArr(Walls, size);
+            ShowcasePlayer.CheckBoxColisionArr(Walls, size-1);
+            bool isOverlaping = ShowcasePlayer.Overlap(ShowcaseBox2);
             ShowcasePlayer.CheckBorderCollisions();
+            ShowcasePlayer.Draw();
             
             //nejake debug zpravy
             printMessageToScreen(" PlayerX: " + std::to_string(ShowcasePlayer.fPlayerX), 1, 1, screen);
@@ -422,7 +444,7 @@ int main()
             
             printMessageToScreen(" Time: " + std::to_string(fTime), 1, 4, screen);
             printMessageToScreen(" [P] to enter game ", 1, 5, screen);
-     
+            printMessageToScreen(" Is player overlaping with # shape?: " + std::to_string(isOverlaping), 1, 5, screen);
             screen[xScreenWidth * yScreenHeight - 1] = '\0';
             WriteConsoleOutputCharacter(hConsole, screen, xScreenWidth * yScreenHeight, { 0,0 }, &dwBytesWritten);
     }
