@@ -29,7 +29,6 @@ bool Bgameloop = true;
 bool BMainMenu = true;
 bool BShowCase = false;
 bool BconfirmMenu = false;
-int sound = 0;
 
 //deklarace nebo definice funkci, nevim nejsem programator
 void clearScreen(wchar_t* activeScreen);
@@ -544,7 +543,7 @@ int main()
             {
                 Pickups[l].DrawThis = false;
                 fScore += 100.0;
-                sound = 2;
+
             }
             if (Pickups[l].isOutHorizontalBounds() == true)
             {
@@ -556,15 +555,7 @@ int main()
            }    
         }
         
-        if (sound > 0) {
-            if (sound == 2) {
-                Beep(1000, 10);
-            }
-            else {
-                Beep(100, 10);
-            }
-            sound--;
-        }
+      
         
         //drawcally zdi
         wall1.Draw();
