@@ -195,7 +195,7 @@ public:
     }
 
     //Genericka metoda pro kontrolu kolizi, legit to zabralo tak 3 hodiny a ani to poradne neefunguje :(
-    void CheckBoxColisionArr(Box colider[], int Asize) {
+    void CheckBoxColisionArr(Box colider[], int Asize,float AdeltaTime) {
         //fici pro kazdy objekt v array
         for (int i = 0; i < Asize; i++)
         {
@@ -204,17 +204,17 @@ public:
                 
                 if (colider[i].Killer == false) {
                     //potom se kontroluje z jake strany narazil a pak ho šupne zpatky
-                    if (fPlayerX+0.3f > colider[i].PosX && fPlayerX < colider[i].PosX + (colider[i].fWidth / 2) && fPlayerY > colider[i].PosY + 0.2 && fPlayerY < colider[i].PosY + colider[i].fHeight - 0.2) {
-                        fPlayerX = colider[i].PosX - 0.5f;
+                    if (fPlayerX+0.4f > colider[i].PosX && fPlayerX < colider[i].PosX + (colider[i].fWidth / 2) && fPlayerY > colider[i].PosY + 0.2 && fPlayerY < colider[i].PosY + colider[i].fHeight - 0.2) {
+                        fPlayerX = colider[i].PosX - fSpeed * AdeltaTime;
                     }
                     if (fPlayerX < colider[i].PosX + colider[i].fWidth && fPlayerX > colider[i].PosX + (colider[i].fWidth / 2.0) && fPlayerY > colider[i].PosY + 0.2 && fPlayerY < colider[i].PosY + colider[i].fHeight - 0.2) {
-                        fPlayerX = colider[i].PosX + colider[i].fWidth + 0.2f;
+                        fPlayerX = colider[i].PosX + colider[i].fWidth + fSpeed * AdeltaTime;
                     }
                     if (fPlayerY > colider[i].PosY && fPlayerY < colider[i].PosY + (colider[i].fHeight / 2.0) && fPlayerX > colider[i].PosX + 0.2 && fPlayerX < colider[i].PosX + colider[i].fWidth - 0.2) {
-                        fPlayerY = colider[i].PosY - 0.2;
+                        fPlayerY = colider[i].PosY - fSpeed * AdeltaTime;
                     }
                     if (fPlayerY < colider[i].PosY + colider[i].fHeight && fPlayerY > colider[i].PosY + (colider[i].fHeight / 2.0) && fPlayerX > colider[i].PosX + 0.2 && fPlayerX < colider[i].PosX + colider[i].fWidth - 0.2) {
-                        fPlayerY = colider[i].PosY + colider[i].fHeight + 0.2;
+                        fPlayerY = colider[i].PosY + colider[i].fHeight + fSpeed * AdeltaTime;
                     }
                 }
                 else {
@@ -296,10 +296,12 @@ int main()
     float step = 37.0f;
 
 
-    Box Pickup1(1.0,1.0,130.0+2.0, 10+7, screen);
+    Box Pickup1(1.0,1.0,30.0, 10+7, screen);
     Pickup1.Shade('#');
-    Box Pickup2(1.0, 1.0, start + (step * 2.0)+2.0, 10+9, screen);
+    Pickup1.DrawThis = false;
+    Box Pickup2(1.0, 1.0, 8.0, 10+9, screen);
     Pickup2.Shade('#');
+    Pickup2.DrawThis = false;
     Box Pickups[2] = {Pickup1, Pickup2};
     
     Box ObstacleTop(5.00, 1.0, start, Top,screen,PIXEL_THREEQUARTERS);
@@ -440,7 +442,7 @@ int main()
             ShowcaseSrollingBox.DrawChecker(fDeltaTime);
             
             //checknuti kolizi
-            ShowcasePlayer.CheckBoxColisionArr(Walls, size-1);
+            ShowcasePlayer.CheckBoxColisionArr(Walls, size-1,fDeltaTime);
             bool isOverlaping = ShowcasePlayer.Overlap(ShowcaseBox2);
             ShowcasePlayer.CheckBorderCollisions();
             ShowcasePlayer.Draw();
@@ -519,13 +521,13 @@ int main()
                         Obstacles[h + 1].PosY = holePos + holeSize + 10.0;
                         Obstacles[h + 1].fHeight = 20 - (holePos + holeSize);
                     }
-                    int randomizer = getrandom(0, 5);
-                    if(randomizer>2){
+                    int randomizer = getrandom(0, 10);
+                    if(randomizer>6){
                     for (int i5 = 0; i5 < 2; i5++)
                     {
                         if (Pickups[i5].DrawThis == false) {
                             Pickups[i5].DrawThis = true;
-                            Pickups[i5].PosX = Obstacles[h].PosX;
+                            Pickups[i5].PosX = Obstacles[h].PosX+2.0;
                             Pickups[i5].PosY = holePos+10 + ((int)(holeSize / 2.0));
                             break;
                         }
@@ -565,8 +567,8 @@ int main()
         Box Walls[] = { wall1,wall2,wall3};
         
         //kolize a jine srandy
-        Player1.CheckBoxColisionArr(Walls, 3);
-        Player1.CheckBoxColisionArr(Obstacles, ObstaclesSize);
+        Player1.CheckBoxColisionArr(Walls, 3,fDeltaTime);
+        Player1.CheckBoxColisionArr(Obstacles, ObstaclesSize, fDeltaTime);
         Player1.CheckBorderCollisions();
         
         
